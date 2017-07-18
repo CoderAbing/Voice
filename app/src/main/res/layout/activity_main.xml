@@ -4,7 +4,7 @@
                 android:id="@+id/activity_main"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#ffffff"
+                android:background="@drawable/forest_3"
                 tools:context="cn.xunlebao.voice.MainActivity">
 
     <cn.xunlebao.voice.SnailBar
@@ -64,7 +64,7 @@
         android:paddingRight="15dp"
         android:paddingStart="15dp"
         android:paddingTop="5dp"
-        android:text="风 -1"
+        android:text="雨声-1"
         android:textSize="12sp"
         android:translationZ="3dp"/>
 </RelativeLayout>
