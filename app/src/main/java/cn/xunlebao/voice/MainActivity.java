@@ -1,5 +1,6 @@
 package cn.xunlebao.voice;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,13 +15,11 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.airsaid.pickerviewlibrary.OptionsPickerView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,21 +38,23 @@ public class MainActivity extends AppCompatActivity {
     private AudioManager mAudioManger;
     private MyVolumeReceiver mReceiver;
     private OptionsPickerView mMusicPik;
+    public static boolean isStart = false;
+
     private String[] mMusicName = {
-            "雨声-1", "雨声-2", "雨声-3", "雨声-4", "雨声-5", "雨声-6", "雨声-7", "雨声-8", "雨声-9", "雨声-10", "雨声-11", "雨声-12", "雨声-13", "雨声-14", "雨声-15", "雨声-16"
-            , "火-1", "火-2", "火-3", "火-4", "火-5", "火-6"
-            , "森林-1", "森林-2", "森林-3", "森林-4", "森林-5", "森林-6", "森林-7", "森林-8", "森林-9", "森林-10", "森林-11", "森林-12", "森林-13"
-            , "海-1", "海-2", "海-3", "海-4", "海-5", "海-6"
-            , "风-1", "风-2", "风-3", "风-4", "风-5", "风-6", "风-7"
-            , "冥想-1", "冥想-2", "冥想-3", "冥想-4", "冥想-5"
+        "雨声-1", "雨声-2", "雨声-3", "雨声-4", "雨声-5", "雨声-6", "雨声-7", "雨声-8", "雨声-9", "雨声-10", "雨声-11", "雨声-12", "雨声-13", "雨声-14", "雨声-15", "雨声-16"
+        , "火-1", "火-2", "火-3", "火-4", "火-5", "火-6"
+        , "森林-1", "森林-2", "森林-3", "森林-4", "森林-5", "森林-6", "森林-7", "森林-8", "森林-9", "森林-10", "森林-11", "森林-12", "森林-13"
+        , "海-1", "海-2", "海-3", "海-4", "海-5", "海-6"
+        , "风-1", "风-2", "风-3", "风-4", "风-5", "风-6", "风-7"
+        , "冥想-1", "冥想-2", "冥想-3", "冥想-4", "冥想-5"
     };
     private Integer[] mMusicRec = {
-            R.raw.rain_1, R.raw.rain_2, R.raw.rain_3, R.raw.rain_4, R.raw.rain_5, R.raw.rain_6, R.raw.rain_7, R.raw.rain_8, R.raw.rain_9, R.raw.rain_10, R.raw.rain_11, R.raw.rain_12, R.raw.rain_13, R.raw.rain_14, R.raw.rain_15, R.raw.rain_16
-            , R.raw.fire_1, R.raw.fire_2, R.raw.fire_3, R.raw.fire_4, R.raw.fire_5, R.raw.fire_6
-            , R.raw.forest_1, R.raw.forest_2, R.raw.forest_3, R.raw.forest_4, R.raw.forest_5, R.raw.forest_7, R.raw.forest_8, R.raw.forest_9, R.raw.forest_10, R.raw.forest_11, R.raw.forest_12, R.raw.forest_13
-            , R.raw.sea_1, R.raw.sea_2, R.raw.sea_3, R.raw.sea_4, R.raw.sea_5
-            , R.raw.wind_1, R.raw.wind_2, R.raw.wind_3, R.raw.wind_4, R.raw.wind_5, R.raw.wind_6, R.raw.wind_7
-            , R.raw.meditation_1, R.raw.meditation_2, R.raw.meditation_3, R.raw.meditation_4, R.raw.meditation_5
+        R.raw.rain_1, R.raw.rain_2, R.raw.rain_3, R.raw.rain_4, R.raw.rain_5, R.raw.rain_6, R.raw.rain_7, R.raw.rain_8, R.raw.rain_9, R.raw.rain_10, R.raw.rain_11, R.raw.rain_12, R.raw.rain_13, R.raw.rain_14, R.raw.rain_15, R.raw.rain_16
+        , R.raw.fire_1, R.raw.fire_2, R.raw.fire_3, R.raw.fire_4, R.raw.fire_5, R.raw.fire_6
+        , R.raw.forest_1, R.raw.forest_2, R.raw.forest_3, R.raw.forest_4, R.raw.forest_5, R.raw.forest_7, R.raw.forest_8, R.raw.forest_9, R.raw.forest_10, R.raw.forest_11, R.raw.forest_12, R.raw.forest_13
+        , R.raw.sea_1, R.raw.sea_2, R.raw.sea_3, R.raw.sea_4, R.raw.sea_5
+        , R.raw.wind_1, R.raw.wind_2, R.raw.wind_3, R.raw.wind_4, R.raw.wind_5, R.raw.wind_6, R.raw.wind_7
+        , R.raw.meditation_1, R.raw.meditation_2, R.raw.meditation_3, R.raw.meditation_4, R.raw.meditation_5
     };
     private ArrayList<String> mMusicList = new ArrayList();
 
@@ -90,9 +91,19 @@ public class MainActivity extends AppCompatActivity {
             public void onOptionsSelect(int option1, int option2, int option3) {
                 String sex = mMusicList.get(option1);
                 tvMainMusicType.setText(sex);
-                Intent in = new Intent(MainActivity.this, PlayMusicService.class);
-                in.putExtra("music", mMusicRec[option1]);
-                startService(in);
+                Intent intent;
+
+
+                if (isStart) {
+                    intent = new Intent("cn.xunlebao.voice.music");
+                    intent.putExtra("music", mMusicRec[option1]);
+                    sendBroadcast(intent);
+                } else {
+                    intent = new Intent(MainActivity.this, PlayMusicService.class);
+                    intent.putExtra("music", mMusicRec[option1]);
+                    startService(intent);
+                    isStart = true;
+                }
 
             }
         });
@@ -123,9 +134,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*
+         * 判断服务是否启动,context上下文对象 ，className服务的name
+         */
+    private boolean isServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.xunlebao.voice.PlayMusicService".equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 注册当音量发生变化时接收的广播
      */
+
     private void myRegisterReceiver() {
         mReceiver = new MyVolumeReceiver();
         IntentFilter filter = new IntentFilter();
@@ -137,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
+        stopService(new Intent(this, PlayMusicService.class));
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
