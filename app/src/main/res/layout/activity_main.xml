@@ -4,8 +4,25 @@
                 android:id="@+id/activity_main"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/forest_3"
                 tools:context="cn.xunlebao.voice.MainActivity">
+
+
+    <ImageView
+        android:id="@+id/iv_background_second"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/rain_1"
+        />
+
+    <ImageView
+        android:id="@+id/iv_background_first"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+
+        android:src="@drawable/rain_0"
+        />
 
     <cn.xunlebao.voice.SnailBar
         android:id="@+id/sb_main_music_value"

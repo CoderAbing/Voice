@@ -1,26 +1,30 @@
 package cn.xunlebao.voice;
 
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airsaid.pickerviewlibrary.OptionsPickerView;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -39,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
     TextView tvMainSleepTime;
     @BindView(R.id.tv_main_music_type)
     TextView tvMainMusicType;
+    @BindView(R.id.iv_background_first)
+    ImageView ivBackgroundFirst;
+    @BindView(R.id.iv_background_second)
+    ImageView ivBackgroundSecond;
     private AudioManager mAudioManger;
     private MyVolumeReceiver mReceiver;
     private OptionsPickerView mMusicPik;
@@ -47,20 +55,20 @@ public class MainActivity extends AppCompatActivity {
     private Thread mThread;
 
     private String[] mMusicName = {
-            "雨声-1", "雨声-2", "雨声-3", "雨声-4", "雨声-5", "雨声-6", "雨声-7", "雨声-8", "雨声-9", "雨声-10", "雨声-11", "雨声-12", "雨声-13", "雨声-14", "雨声-15", "雨声-16"
-            , "火-1", "火-2", "火-3", "火-4", "火-5", "火-6"
-            , "森林-1", "森林-2", "森林-3", "森林-4", "森林-5", "森林-6", "森林-7", "森林-8", "森林-9", "森林-10", "森林-11", "森林-12", "森林-13"
-            , "海-1", "海-2", "海-3", "海-4", "海-5"
-            , "风-1", "风-2", "风-3", "风-4", "风-5", "风-6", "风-7"
-            , "冥想-1", "冥想-2", "冥想-3", "冥想-4", "冥想-5"
+        "雨声-1", "雨声-2", "雨声-3", "雨声-4", "雨声-5", "雨声-6", "雨声-7", "雨声-8", "雨声-9", "雨声-10", "雨声-11", "雨声-12", "雨声-13", "雨声-14", "雨声-15", "雨声-16"
+        , "火-1", "火-2", "火-3", "火-4", "火-5", "火-6"
+        , "森林-1", "森林-2", "森林-3", "森林-4", "森林-5", "森林-6", "森林-7", "森林-8", "森林-9", "森林-10", "森林-11", "森林-12", "森林-13"
+        , "海-1", "海-2", "海-3", "海-4", "海-5"
+        , "风-1", "风-2", "风-3", "风-4", "风-5", "风-6", "风-7"
+        , "冥想-1", "冥想-2", "冥想-3", "冥想-4", "冥想-5"
     };
     private Integer[] mMusicRec = {
-            R.raw.rain_1, R.raw.rain_2, R.raw.rain_3, R.raw.rain_4, R.raw.rain_5, R.raw.rain_6, R.raw.rain_7, R.raw.rain_8, R.raw.rain_9, R.raw.rain_10, R.raw.rain_11, R.raw.rain_12, R.raw.rain_13, R.raw.rain_14, R.raw.rain_15, R.raw.rain_16
-            , R.raw.fire_1, R.raw.fire_2, R.raw.fire_3, R.raw.fire_4, R.raw.fire_5, R.raw.fire_6
-            , R.raw.forest_1, R.raw.forest_2, R.raw.forest_3, R.raw.forest_4, R.raw.forest_5, R.raw.forest_6, R.raw.forest_7, R.raw.forest_8, R.raw.forest_9, R.raw.forest_10, R.raw.forest_11, R.raw.forest_12, R.raw.forest_13
-            , R.raw.sea_1, R.raw.sea_2, R.raw.sea_3, R.raw.sea_4, R.raw.sea_5
-            , R.raw.wind_1, R.raw.wind_2, R.raw.wind_3, R.raw.wind_4, R.raw.wind_5, R.raw.wind_6, R.raw.wind_7
-            , R.raw.meditation_1, R.raw.meditation_2, R.raw.meditation_3, R.raw.meditation_4, R.raw.meditation_5
+        R.raw.rain_1, R.raw.rain_2, R.raw.rain_3, R.raw.rain_4, R.raw.rain_5, R.raw.rain_6, R.raw.rain_7, R.raw.rain_8, R.raw.rain_9, R.raw.rain_10, R.raw.rain_11, R.raw.rain_12, R.raw.rain_13, R.raw.rain_14, R.raw.rain_15, R.raw.rain_16
+        , R.raw.fire_1, R.raw.fire_2, R.raw.fire_3, R.raw.fire_4, R.raw.fire_5, R.raw.fire_6
+        , R.raw.forest_1, R.raw.forest_2, R.raw.forest_3, R.raw.forest_4, R.raw.forest_5, R.raw.forest_6, R.raw.forest_7, R.raw.forest_8, R.raw.forest_9, R.raw.forest_10, R.raw.forest_11, R.raw.forest_12, R.raw.forest_13
+        , R.raw.sea_1, R.raw.sea_2, R.raw.sea_3, R.raw.sea_4, R.raw.sea_5
+        , R.raw.wind_1, R.raw.wind_2, R.raw.wind_3, R.raw.wind_4, R.raw.wind_5, R.raw.wind_6, R.raw.wind_7
+        , R.raw.meditation_1, R.raw.meditation_2, R.raw.meditation_3, R.raw.meditation_4, R.raw.meditation_5
     };
     private Integer[] mRain = {R.drawable.rain_0, R.drawable.rain_1, R.drawable.rain_2, R.drawable.rain_3, R.drawable.rain_4, R.drawable.rain_5, R.drawable.rain_6, R.drawable.rain_7, R.drawable.rain_8, R.drawable.rain_9,};
     private Integer[] mFire = {R.drawable.fire_0, R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5, R.drawable.fire_6, R.drawable.fire_7, R.drawable.fire_8, R.drawable.fire_9};
@@ -72,6 +80,11 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> mMusicList = new ArrayList();
     private String name = "雨声-1";
     private Random random;
+    private int mRec;
+    private AlphaAnimation V2I;
+    private AlphaAnimation I2V;
+    private boolean isTop = true;//标识ivBackgroundFirst是否在最上层
+    private Bitmap bitFirst, bitSecond;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,57 +175,109 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void updateRec() {
+        if (random == null)
+            random = new Random();
+
+        switch (name.substring(0, 1)) {
+            case "雨":
+                mRec = mRain[random.nextInt(mRain.length)];
+                break;
+            case "火":
+                mRec = mFire[random.nextInt(mFire.length)];
+                break;
+            case "森":
+                mRec = mForest[random.nextInt(mForest.length)];
+                break;
+            case "海":
+                mRec = mSea[random.nextInt(mSea.length)];
+                break;
+            case "风":
+                mRec = mWind[random.nextInt(mWind.length)];
+                break;
+            case "冥":
+                mRec = mMeditation[random.nextInt(mMeditation.length)];
+                break;
+            default:
+                mRec = R.drawable.forest_5;
+        }
+    }
+
     private void updateImg() {
-        random = new Random();
         mThread = new Thread(new Runnable() {
             @Override
             public void run() {
-
                 try {
                     while (true) {
-                        final int rec;
+                        updateRec();
                         Thread.sleep(10000);
-                        switch (name.substring(0, 1)) {
-                            case "雨":
-                                rec = mRain[random.nextInt(mRain.length)];
-                                break;
-                            case "火":
-                                rec = mFire[random.nextInt(mFire.length)];
-                                break;
-                            case "森":
-                                rec = mForest[random.nextInt(mForest.length)];
-                                break;
-                            case "海":
-                                rec = mSea[random.nextInt(mSea.length)];
-                                break;
-                            case "风":
-                                rec = mWind[random.nextInt(mWind.length)];
-                                break;
-                            case "冥":
-                                rec = mMeditation[random.nextInt(mMeditation.length)];
-                                break;
-                            default:
-                                rec = R.drawable.forest_5;
-
-                        }
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                activityMain.setBackgroundResource(rec);
+                                if (isTop) {
+                                    ivBackgroundFirst.startAnimation(V2I);
+                                    ivBackgroundSecond.startAnimation(I2V);
+                                } else {
+                                    ivBackgroundFirst.startAnimation(I2V);
+                                    ivBackgroundSecond.startAnimation(V2I);
+                                }
                             }
                         });
                     }
 
                 } catch (InterruptedException e) {
-
-
+                    e.printStackTrace();
                 }
             }
         });
         mThread.start();
     }
 
+    /**
+     * 以最省内存的方式读取本地资源的图片
+     *
+     * @param context
+     * @param resId
+     * @return
+     */
+    public static Bitmap readBitMap(Context context, int resId) {
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+        opt.inPreferredConfig = Bitmap.Config.RGB_565;
+        opt.inPurgeable = true;
+        opt.inInputShareable = true;
+        //获取资源图片
+        InputStream is = context.getResources().openRawResource(resId);
+        return BitmapFactory.decodeStream(is, null, opt);
+    }
+
     private void setListener() {
+        I2V = (AlphaAnimation) AnimationUtils.loadAnimation(this, R.anim.invisible_2_visible);
+        V2I = (AlphaAnimation) AnimationUtils.loadAnimation(this, R.anim.visible_2_invisible);
+        V2I.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                updateRec();
+                if (isTop) {
+                    ivBackgroundFirst.setImageBitmap(readBitMap(MainActivity.this, mRec));
+                    isTop = false;
+
+                } else {
+                    ivBackgroundSecond.setImageBitmap(readBitMap(MainActivity.this, mRec));
+                    isTop = true;
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
         mAudioManger = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mAudioManger.setMode(AudioManager.STREAM_MUSIC);
         sbMainMusicValue.setMax(mAudioManger.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
@@ -251,6 +316,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
+        mThread.interrupt();
         stopService(new Intent(this, PlayMusicService.class));
     }
 
