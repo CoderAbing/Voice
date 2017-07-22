@@ -1,17 +1,17 @@
 package cn.xunlebao.voice;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
+import android.support.v4.app.NotificationCompat;
 
-import java.io.IOException;
 
 /**
  * Created by Vincent on 2017/7/18.
@@ -24,6 +24,7 @@ public class PlayMusicService extends Service {
     private final IBinder binder = new AudioBinder();
     private MusicReceiver mReceiver;
     private IntentFilter mFilter;
+    private PendingIntent pintent;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -51,6 +52,7 @@ public class PlayMusicService extends Service {
         mFilter.addAction(MESSAGE_ACTION_MUSIC);
         registerReceiver(mReceiver, mFilter);
 
+
     }
 
     @Override
@@ -63,6 +65,27 @@ public class PlayMusicService extends Service {
      * 该方法在SDK2.0才开始有的，替代原来的onStart方法
      */
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        pintent = PendingIntent.getService(this, 0, intent, 0);
+
+        Notification notify = new NotificationCompat.Builder(this)
+                //设置小图标
+                .setSmallIcon(R.drawable.notification_logo)
+                //设置通知标题
+                .setContentTitle("Voice")
+                //设置通知内容
+                .setContentText("这是来自大自然的声音")
+                .setContentIntent(pintent)
+                //设置通知时间，默认为系统发出通知的时间，通常不用设置
+                .setWhen(System.currentTimeMillis())
+                .build();
+        notify.flags = Notification.FLAG_ONGOING_EVENT;
+
+
+        //让该service前台运行，避免手机休眠时系统自动杀掉该服务
+        //如果 id 为 0 ，那么状态栏的 notification 将不会显示。
+        startForeground(startId, notify);
+
         mMusicId = intent.getIntExtra("music", 0);
         //我们从raw文件夹中获取一个应用自带的mp3文件
         player = MediaPlayer.create(this, mMusicId);
@@ -71,6 +94,16 @@ public class PlayMusicService extends Service {
         if (!player.isPlaying()) {
             player.start();
         }
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (player != null) {
+                    player.setLooping(true);
+                    player.start();
+                }
+
+            }
+        });
 
         return START_STICKY;
     }
@@ -103,8 +136,8 @@ public class PlayMusicService extends Service {
                     player.stop();
                     player.release();
                 }
-                player = MediaPlayer.create(context, mMusicId);
                 player.setLooping(true);
+                player = MediaPlayer.create(context, mMusicId);
                 player.start();
             }
         }

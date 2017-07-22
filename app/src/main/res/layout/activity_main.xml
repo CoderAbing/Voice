@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:id="@+id/activity_main"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="cn.xunlebao.voice.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.xunlebao.voice.MainActivity">
 
 
     <ImageView
@@ -12,34 +13,41 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/rain_1"
-        />
+        android:src="@drawable/rain_1" />
 
     <ImageView
         android:id="@+id/iv_background_first"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
+        android:src="@drawable/rain_0" />
 
-        android:src="@drawable/rain_0"
-        />
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/riv_user_head"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:scaleType="fitCenter"
+        app:riv_oval="true" />
 
     <cn.xunlebao.voice.SnailBar
         android:id="@+id/sb_main_music_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/riv_user_head"
         android:layout_marginEnd="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/bg_snail_seekbar"
         android:elevation="5dp"
         android:maxHeight="5dp"
         android:minHeight="5dp"
         android:splitTrack="false"
         android:thumb="@drawable/snail_runing"
-        android:translationZ="5dp"/>
+        android:translationZ="5dp" />
 
     <TextView
         android:id="@+id/tv_main_sleep_time"
@@ -59,8 +67,7 @@
         android:paddingTop="5dp"
         android:text="倒计时"
         android:textSize="12sp"
-        android:translationZ="5dp"
-        />
+        android:translationZ="5dp" />
 
     <TextView
         android:id="@+id/tv_main_music_type"
@@ -83,5 +90,5 @@
         android:paddingTop="5dp"
         android:text="雨声-1"
         android:textSize="12sp"
-        android:translationZ="3dp"/>
+        android:translationZ="3dp" />
 </RelativeLayout>

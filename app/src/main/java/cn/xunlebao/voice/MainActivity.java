@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -23,7 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airsaid.pickerviewlibrary.OptionsPickerView;
+import com.bumptech.glide.Glide;
+import com.makeramen.roundedimageview.RoundedImageView;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,36 +51,14 @@ public class MainActivity extends AppCompatActivity {
     ImageView ivBackgroundFirst;
     @BindView(R.id.iv_background_second)
     ImageView ivBackgroundSecond;
+    @BindView(R.id.riv_user_head)
+    RoundedImageView rivUserHead;
     private AudioManager mAudioManger;
     private MyVolumeReceiver mReceiver;
     private OptionsPickerView mMusicPik;
     private OptionsPickerView mTimePicker;
     public static boolean isStart = false;
     private Thread mThread;
-
-    private String[] mMusicName = {
-        "雨声-1", "雨声-2", "雨声-3", "雨声-4", "雨声-5", "雨声-6", "雨声-7", "雨声-8", "雨声-9", "雨声-10", "雨声-11", "雨声-12", "雨声-13", "雨声-14", "雨声-15", "雨声-16"
-        , "火-1", "火-2", "火-3", "火-4", "火-5", "火-6"
-        , "森林-1", "森林-2", "森林-3", "森林-4", "森林-5", "森林-6", "森林-7", "森林-8", "森林-9", "森林-10", "森林-11", "森林-12", "森林-13"
-        , "海-1", "海-2", "海-3", "海-4", "海-5"
-        , "风-1", "风-2", "风-3", "风-4", "风-5", "风-6", "风-7"
-        , "冥想-1", "冥想-2", "冥想-3", "冥想-4", "冥想-5"
-    };
-    private Integer[] mMusicRec = {
-        R.raw.rain_1, R.raw.rain_2, R.raw.rain_3, R.raw.rain_4, R.raw.rain_5, R.raw.rain_6, R.raw.rain_7, R.raw.rain_8, R.raw.rain_9, R.raw.rain_10, R.raw.rain_11, R.raw.rain_12, R.raw.rain_13, R.raw.rain_14, R.raw.rain_15, R.raw.rain_16
-        , R.raw.fire_1, R.raw.fire_2, R.raw.fire_3, R.raw.fire_4, R.raw.fire_5, R.raw.fire_6
-        , R.raw.forest_1, R.raw.forest_2, R.raw.forest_3, R.raw.forest_4, R.raw.forest_5, R.raw.forest_6, R.raw.forest_7, R.raw.forest_8, R.raw.forest_9, R.raw.forest_10, R.raw.forest_11, R.raw.forest_12, R.raw.forest_13
-        , R.raw.sea_1, R.raw.sea_2, R.raw.sea_3, R.raw.sea_4, R.raw.sea_5
-        , R.raw.wind_1, R.raw.wind_2, R.raw.wind_3, R.raw.wind_4, R.raw.wind_5, R.raw.wind_6, R.raw.wind_7
-        , R.raw.meditation_1, R.raw.meditation_2, R.raw.meditation_3, R.raw.meditation_4, R.raw.meditation_5
-    };
-    private Integer[] mRain = {R.drawable.rain_0, R.drawable.rain_1, R.drawable.rain_2, R.drawable.rain_3, R.drawable.rain_4, R.drawable.rain_5, R.drawable.rain_6, R.drawable.rain_7, R.drawable.rain_8, R.drawable.rain_9,};
-    private Integer[] mFire = {R.drawable.fire_0, R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5, R.drawable.fire_6, R.drawable.fire_7, R.drawable.fire_8, R.drawable.fire_9};
-    private Integer[] mSea = {R.drawable.sea_0, R.drawable.sea_1, R.drawable.sea_2, R.drawable.sea_3, R.drawable.sea_4, R.drawable.sea_5, R.drawable.sea_6, R.drawable.sea_7, R.drawable.sea_8, R.drawable.sea_9};
-    private Integer[] mForest = {R.drawable.forest_0, R.drawable.forest_1, R.drawable.forest_2, R.drawable.forest_3, R.drawable.forest_4, R.drawable.forest_5, R.drawable.forest_6, R.drawable.forest_7, R.drawable.forest_8, R.drawable.forest_9,};
-    private Integer[] mWind = {R.drawable.wind_0, R.drawable.wind_1, R.drawable.wind_2, R.drawable.wind_3, R.drawable.wind_4, R.drawable.wind_5, R.drawable.wind_6, R.drawable.wind_7, R.drawable.wind_8, R.drawable.wind_9,};
-    private Integer[] mMeditation = {R.drawable.meditation_1, R.drawable.meditation_2, R.drawable.meditation_3, R.drawable.meditation_4, R.drawable.meditation_4, R.drawable.meditation_5, R.drawable.meditation_6, R.drawable.meditation_7, R.drawable.meditation_8, R.drawable.meditation_9,};
-
     private ArrayList<String> mMusicList = new ArrayList();
     private String name = "雨声-1";
     private Random random;
@@ -84,7 +66,31 @@ public class MainActivity extends AppCompatActivity {
     private AlphaAnimation V2I;
     private AlphaAnimation I2V;
     private boolean isTop = true;//标识ivBackgroundFirst是否在最上层
-    private Bitmap bitFirst, bitSecond;
+    private CountDownTimer timer;
+    private int[] timeArray = {15 * 60 * 1000, 30 * 60 * 1000, 60 * 60 * 1000, 90 * 60 * 1000, 120 * 60 * 1000};
+    private String[] mMusicName = {
+            "雨声-1", "雨声-2", "雨声-3", "雨声-4", "雨声-5", "雨声-6", "雨声-7", "雨声-8", "雨声-9", "雨声-10", "雨声-11", "雨声-12", "雨声-13", "雨声-14", "雨声-15", "雨声-16"
+            , "火-1", "火-2", "火-3", "火-4", "火-5", "火-6"
+            , "森林-1", "森林-2", "森林-3", "森林-4", "森林-5", "森林-6", "森林-7", "森林-8", "森林-9", "森林-10", "森林-11", "森林-12", "森林-13"
+            , "海-1", "海-2", "海-3", "海-4", "海-5"
+            , "风-1", "风-2", "风-3", "风-4", "风-5", "风-6", "风-7"
+            , "冥想-1", "冥想-2", "冥想-3", "冥想-4", "冥想-5"
+    };
+    private Integer[] mMusicRec = {
+            R.raw.rain_1, R.raw.rain_2, R.raw.rain_3, R.raw.rain_4, R.raw.rain_5, R.raw.rain_6, R.raw.rain_7, R.raw.rain_8, R.raw.rain_9, R.raw.rain_10, R.raw.rain_11, R.raw.rain_12, R.raw.rain_13, R.raw.rain_14, R.raw.rain_15, R.raw.rain_16
+            , R.raw.fire_1, R.raw.fire_2, R.raw.fire_3, R.raw.fire_4, R.raw.fire_5, R.raw.fire_6
+            , R.raw.forest_1, R.raw.forest_2, R.raw.forest_3, R.raw.forest_4, R.raw.forest_5, R.raw.forest_6, R.raw.forest_7, R.raw.forest_8, R.raw.forest_9, R.raw.forest_10, R.raw.forest_11, R.raw.forest_12, R.raw.forest_13
+            , R.raw.sea_1, R.raw.sea_2, R.raw.sea_3, R.raw.sea_4, R.raw.sea_5
+            , R.raw.wind_1, R.raw.wind_2, R.raw.wind_3, R.raw.wind_4, R.raw.wind_5, R.raw.wind_6, R.raw.wind_7
+            , R.raw.meditation_1, R.raw.meditation_2, R.raw.meditation_3, R.raw.meditation_4, R.raw.meditation_5
+    };
+    private Integer[] mRain = {R.drawable.rain_0, R.drawable.rain_1, R.drawable.rain_2, R.drawable.rain_3, R.drawable.rain_4, R.drawable.rain_5, R.drawable.rain_6, R.drawable.rain_7, R.drawable.rain_8, R.drawable.rain_9,};
+    private Integer[] mFire = {R.drawable.fire_0, R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5, R.drawable.fire_6, R.drawable.fire_7, R.drawable.fire_8, R.drawable.fire_9};
+    private Integer[] mSea = {R.drawable.sea_0, R.drawable.sea_1, R.drawable.sea_2, R.drawable.sea_3, R.drawable.sea_4, R.drawable.sea_5, R.drawable.sea_6, R.drawable.sea_7, R.drawable.sea_8, R.drawable.sea_9};
+    private Integer[] mForest = {R.drawable.forest_0, R.drawable.forest_1, R.drawable.forest_2, R.drawable.forest_3, R.drawable.forest_4, R.drawable.forest_5, R.drawable.forest_6, R.drawable.forest_7, R.drawable.forest_8, R.drawable.forest_9,};
+    private Integer[] mWind = {R.drawable.wind_0, R.drawable.wind_1, R.drawable.wind_2, R.drawable.wind_3, R.drawable.wind_4, R.drawable.wind_5, R.drawable.wind_6, R.drawable.wind_7, R.drawable.wind_8, R.drawable.wind_9,};
+    private Integer[] mMeditation = {R.drawable.meditation_1, R.drawable.meditation_2, R.drawable.meditation_3, R.drawable.meditation_4, R.drawable.meditation_4, R.drawable.meditation_5, R.drawable.meditation_6, R.drawable.meditation_7, R.drawable.meditation_8, R.drawable.meditation_9,};
+    private String[] tips = {"这里不能点!", "不能点\r\n能不能自觉点!", "能不能安分点？", "你够了啊!\r\n这儿不能点!", "像个傻子一样乱点!", "不能点!不能点!"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPickerView() {
+        Glide.with(this).load(R.drawable.main_image).into(rivUserHead);
         mMusicPik = new OptionsPickerView(this);
         mMusicPik.setCancelable(true);//是否点击外部消失
         mMusicPik.setTextSize(16f);//设置滚轮字体大小
@@ -163,12 +170,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onOptionsSelect(int option1, int option2, int option3) {
                 String time = times.get(option1);
-                tvMainSleepTime.setText(time);
-                if ("关闭".equals(time)) {
-                    Toast.makeText(MainActivity.this, time, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, time, Toast.LENGTH_SHORT).show();
+                if (timer != null) {
+                    timer.cancel();
                 }
+                if ("关闭".equals(time)) {
+                    tvMainSleepTime.setText("倒计时");
+                    return;
+                } else {
+                    timer = new CountDownTimer(timeArray[option1 - 1], 1000) {
+
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            tvMainSleepTime.setText("还剩" + millisUntilFinished / (60 * 1000) + "分钟");
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            System.exit(0);
+                        }
+                    };
+                }
+                timer.start();
             }
         });
 
@@ -287,6 +309,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mAudioManger.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+                if (progress == seekBar.getMax()) {
+                    Toast.makeText(MainActivity.this, "老铁\r\n声音不宜过大！", Toast.LENGTH_SHORT).show();
+                }
+                if (progress == 0) {
+                    Toast.makeText(MainActivity.this, "没声音了啊!\r\n这个软件还有什么意义？", Toast.LENGTH_SHORT).show();
+
+                }
             }
 
             @Override
@@ -297,6 +326,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+        rivUserHead.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                new BigImageDialog(MainActivity.this).show();
+                return false;
             }
         });
     }
@@ -332,10 +368,20 @@ public class MainActivity extends AppCompatActivity {
             mAudioManger.setStreamVolume(AudioManager.STREAM_MUSIC, currVolume, 0);
             sbMainMusicValue.setProgress(currVolume);
             return true;
+        } else if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+                System.exit(0);
+            }
+            return true;
         } else return super.onKeyDown(keyCode, event);
+
     }
 
-    @OnClick({R.id.tv_main_sleep_time, R.id.tv_main_music_type})
+    @OnClick({R.id.tv_main_sleep_time, R.id.tv_main_music_type, R.id.riv_user_head})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tv_main_sleep_time:
@@ -344,8 +390,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.tv_main_music_type:
                 mMusicPik.show();
                 break;
+            case R.id.riv_user_head:
+                Random r = new Random();
+                Toast.makeText(this, tips[r.nextInt(6)], Toast.LENGTH_SHORT).show();
+                break;
         }
     }
+
+    private long exitTime = 0;
+
 
     /**
      * 处理音量变化时的界面显示
